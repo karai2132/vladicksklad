@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#f2f2f7">
+<script>try{if(localStorage.getItem("stroyuchet:theme")==="dark")document.documentElement.setAttribute("data-theme","dark")}catch(e){}</script>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Стройучет">
+<title>Стройучет</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E📦%3C/text%3E%3C/svg%3E">
+<style>
+:root{
+  color-scheme: light;
+  --bg:#f2f2f7; --card:#ffffff; --field:#ffffff; --sheet:#f2f2f7; --sheetcard:#ffffff; --fill:#e6e6eb;
+  --text:#111111; --muted:#6b7280; --line:#e0e0e6;
+  --accent:#0a84ff; --green:#188a3e; --red:#d92d20; --tabbg:rgba(255,255,255,.94);
+  --okbg:#e8f5ec; --dangerbg:#fdecea; --partbg:#fff4e5; --partfg:#8a4b00;
+  --warnbd:#ffd8a8; --dangerbd:#f3c5c0; --segon:#ffffff;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg)}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --bg:#000000; --card:#1c1c1e; --field:#2c2c2e; --sheet:#1c1c1e; --sheetcard:#2c2c2e; --fill:#2c2c2e;
+  --text:#f5f5f7; --muted:#a1a1a8; --line:#3a3a3c;
+  --accent:#0a84ff; --green:#30d158; --red:#ff6961; --tabbg:rgba(28,28,30,.94);
+  --okbg:#12301c; --dangerbg:#3a1a18; --partbg:#3a2a10; --partfg:#ffb454;
+  --warnbd:#6b4a1a; --dangerbd:#5c2c29; --segon:#48484a;
+}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  font-size:17px;line-height:1.35;-webkit-text-size-adjust:100%;
+}
+body.noscroll{overflow:hidden}
+#view{max-width:560px;margin:0 auto;padding:12px 16px 120px}
+h1{font-size:34px;line-height:1.1;margin:8px 0 14px;letter-spacing:-.5px}
+h2,h3{margin:0}
+.muted{color:var(--muted)}
+.pos{color:var(--green)}
+.neg{color:var(--red)}
+.empty{text-align:center;color:var(--muted);padding:32px 12px}
+.warn{background:var(--partbg);border:1px solid var(--warnbd);color:var(--partfg);border-radius:12px;padding:10px 12px;margin:0 0 12px;font-size:15px}
+
+.btn{
+  display:block;width:100%;border:0;border-radius:14px;padding:15px 16px;
+  font-family:inherit;font-size:17px;font-weight:600;line-height:1.2;cursor:pointer;
+  background:var(--fill);color:var(--text);margin:0 0 10px;
+}
+.btn.primary{background:var(--accent);color:#fff}
+.btn.primary:disabled{opacity:.4;cursor:default}
+.btn.danger{background:var(--field);color:var(--red);border:1px solid var(--dangerbd)}
+.btn.danger-fill{background:#d92d20;color:#fff}
+.btn:active{opacity:.75}
+
+.card{background:var(--card);border-radius:16px;padding:14px 16px;margin:0 0 10px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+button.card{display:block;width:100%;text-align:left;border:0;font:inherit;color:inherit;cursor:pointer}
+button.card:active{opacity:.7}
+.name{font-weight:600;font-size:18px;margin-bottom:4px}
+.big{font-size:30px;font-weight:700;letter-spacing:-.5px}
+.total{font-size:20px;font-weight:700;margin:2px 0}
+.small{font-size:13px;color:var(--muted);margin-top:2px}
+.stat .muted{font-size:15px}
+
+.search{
+  width:100%;min-height:44px;font-size:17px;padding:10px 14px;margin:0 0 12px;border:0;border-radius:12px;
+  background:var(--fill);color:var(--text);-webkit-appearance:none;appearance:none;font-family:inherit;
+}
+
+#tabs{
+  position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;
+  background:var(--tabbg);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  border-top:1px solid var(--line);
+  padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));
+}
+#tabs button{
+  flex:1;border:0;background:none;font-family:inherit;color:var(--muted);
+  display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 0;cursor:pointer;
+}
+#tabs .ic{font-size:24px;line-height:1.1}
+#tabs .lb{font-size:11px;font-weight:600}
+#tabs button.on{color:var(--accent)}
+
+.backdrop{position:fixed;left:0;right:0;top:0;bottom:0;background:rgba(0,0,0,.35);z-index:50}
+.sheet{
+  position:fixed;left:0;right:0;bottom:0;z-index:51;max-width:560px;margin:0 auto;
+  background:var(--sheet);border-radius:20px 20px 0 0;max-height:92vh;max-height:92dvh;
+  display:flex;flex-direction:column;
+}
+.sheet-h{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 8px}
+.sheet-h h2{font-size:18px}
+.sheet-h .link{border:0;background:none;color:var(--accent);font-family:inherit;font-size:17px;padding:4px 0;min-width:70px;text-align:left;cursor:pointer}
+.sheet-h .sp{min-width:70px}
+.sheet-b{overflow:auto;-webkit-overflow-scrolling:touch;padding:8px 16px calc(16px + env(safe-area-inset-bottom,0px))}
+
+.f{display:block;margin:0 0 12px}
+.f>span{display:block;font-size:13px;color:var(--muted);margin:0 0 6px 4px}
+.f input,.f select{
+  width:100%;min-height:48px;font-size:17px;padding:11px 14px;border:1px solid var(--line);
+  border-radius:12px;background:var(--field);color:var(--text);font-family:inherit;
+}
+.f input[type=text],.f input[inputmode]{-webkit-appearance:none;appearance:none}
+.hint{font-size:14px;color:var(--muted);margin:-6px 0 12px 4px}
+.err{color:var(--red);font-size:15px;margin:0 0 10px 4px;min-height:0}
+.err:empty{display:none}
+.sum{display:flex;gap:10px;margin:4px 0 14px}
+.sum>div{flex:1;background:var(--field);border-radius:12px;padding:10px 12px}
+.sum span{display:block;font-size:13px;color:var(--muted)}
+.sum b{font-size:19px}
+
+.dlg{position:fixed;left:0;right:0;top:0;bottom:0;z-index:80;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.4);padding:24px}
+.dlg-box{background:var(--sheetcard);border-radius:16px;padding:20px;max-width:340px;width:100%}
+.dlg-box h3{font-size:19px;margin-bottom:6px}
+.dlg-box p{margin:0 0 16px;color:var(--muted)}
+
+/* ---- клиенты ---- */
+.back{border:0;background:none;color:var(--accent);font-family:inherit;font-size:17px;padding:4px 0;margin:0 0 2px;cursor:pointer}
+.chips{display:flex;gap:8px;overflow-x:auto;margin:0 0 12px;padding-bottom:2px;-webkit-overflow-scrolling:touch}
+.chip{flex:none;border:0;border-radius:999px;padding:8px 14px;font-family:inherit;font-size:15px;font-weight:600;background:var(--fill);color:var(--text);cursor:pointer}
+.chip.on{background:var(--accent);color:#fff}
+.pill{display:inline-block;border-radius:999px;padding:2px 10px;font-size:13px;font-weight:600;background:var(--okbg);color:var(--green)}
+.pill.debt{background:var(--dangerbg);color:var(--red)}
+.pill.part{background:var(--partbg);color:var(--partfg)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 12px}
+.cell{background:var(--card);border-radius:14px;padding:12px 14px}
+.cell span{display:block;font-size:13px;color:var(--muted)}
+.cell b{font-size:19px}
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 12px}
+.acts .btn{margin:0;text-align:center;text-decoration:none;padding:13px 10px;font-size:16px}
+a.btn{color:var(--text)}
+.btn.off{opacity:.4;pointer-events:none}
+.seg{display:flex;background:var(--fill);border-radius:12px;padding:3px;margin:0 0 12px}
+.seg button{flex:1;border:0;background:none;font-family:inherit;font-size:15px;font-weight:600;padding:9px 4px;border-radius:10px;color:var(--text);cursor:pointer}
+.seg button.on{background:var(--segon);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.cap{display:block;font-size:13px;color:var(--muted);margin:0 0 6px 4px}
+.sec{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin:18px 4px 8px}
+.row{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.link-btn{border:0;background:none;color:var(--accent);font-family:inherit;font-size:15px;font-weight:600;padding:8px 0 0;cursor:pointer}
+.f textarea{width:100%;font-size:17px;padding:11px 14px;border:1px solid var(--line);border-radius:12px;background:var(--field);color:var(--text);font-family:inherit;resize:vertical}
+.hrow{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.ibtn{flex:none;border:0;background:var(--fill);border-radius:12px;width:44px;height:44px;font-size:20px;cursor:pointer}
+.ibtn:active{opacity:.7}
+.okm{color:var(--green);font-size:15px;margin:0 0 10px 4px}
+.okm:empty{display:none}
+.ta{width:100%;font-size:14px;padding:11px 14px;border:1px solid var(--line);border-radius:12px;background:var(--field);color:var(--text);font-family:ui-monospace,Menlo,monospace;margin:0 0 10px;resize:vertical}
+.sheet .card{background:var(--sheetcard)}
+.hbtns{display:flex;gap:8px}
+.pline{background:var(--sheetcard);border-radius:14px;padding:12px 14px;margin:0 0 12px}
+.pline .f{margin:0 0 10px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pline .r-sum{margin:0}
+</style>
+</head>
+<body>
+<div id="app"><main id="view"></main></div>
+<nav id="tabs">
+  <button data-tab="materials"><span class="ic">📦</span><span class="lb">Материалы</span></button>
+  <button data-tab="sales"><span class="ic">💰</span><span class="lb">Продажи</span></button>
+  <button data-tab="purchases"><span class="ic">🚚</span><span class="lb">Приход</span></button>
+  <button data-tab="clients"><span class="ic">👥</span><span class="lb">Клиенты</span></button>
+</nav>
+<div id="sheet-root"></div>
+<div id="dlg-root"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  var KEY = 'stroyuchet:v1';
+  var UNITS = ['шт', 'кг', 'т', 'м', 'м²', 'м³', 'другое'];
+  var storageOK = true;
+  var db = { materials: [], sales: [], purchases: [], clients: [], payments: [] };
+  var tab = 'materials';
+  var search = '';
+  var openClientId = null;
+  var THEME_KEY = 'stroyuchet:theme';
+  var theme = 'light';   /* светлая по умолчанию; выбор хранится отдельно от данных, в копию не попадает */
+  var clientSearch = '';
+  var clientFilter = 'all';
+
+  /* ---------- хранилище ---------- */
+  function load() {
+    try {
+      localStorage.setItem('__t', '1');
+      localStorage.removeItem('__t');
+      var raw = localStorage.getItem(KEY);
+      if (raw) {
+        var d = JSON.parse(raw);
+        db = { materials: d.materials || [], sales: d.sales || [], purchases: d.purchases || [], clients: d.clients || [], payments: d.payments || [] };
+      }
+    } catch (e) { storageOK = false; }
+  }
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(db)); }
+    catch (e) { storageOK = false; }
+  }
+
+  /* ---------- тема ---------- */
+  function applyTheme() {
+    document.documentElement.setAttribute('data-theme', theme);
+    var cs = document.querySelector('meta[name="color-scheme"]');
+    if (cs) cs.setAttribute('content', theme);
+    var tc = document.querySelector('meta[name="theme-color"]');
+    if (tc) tc.setAttribute('content', theme === 'dark' ? '#000000' : '#f2f2f7');
+  }
+  function loadTheme() {
+    try { if (localStorage.getItem(THEME_KEY) === 'dark') theme = 'dark'; } catch (e) { }
+    applyTheme();
+  }
+  function toggleTheme() {
+    theme = theme === 'dark' ? 'light' : 'dark';
+    try { localStorage.setItem(THEME_KEY, theme); } catch (e) { }
+    applyTheme();
+    render();
+  }
+
+  /* Продажа = список товаров (items). Старые продажи из одной позиции при загрузке приводятся к этому виду. */
+  function normalizeSales() {
+    db.sales.forEach(function (s) {
+      if (!Array.isArray(s.items)) {
+        s.items = [{
+          materialId: s.materialId, materialName: s.materialName, unit: s.unit,
+          quantity: s.quantity, price: s.price,
+          costPrice: typeof s.costPrice === 'number' ? s.costPrice : s.price,
+          total: s.total
+        }];
+      }
+    });
+  }
+
+  /* ---------- утилиты ---------- */
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+  function r2(x) { return Math.round(x * 100) / 100; }
+  function r3(x) { return Math.round(x * 1000) / 1000; }
+  var nfMoney = new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 2, useGrouping: 'always' });
+  var nfQty = new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 3, useGrouping: 'always' });
+  function rub(x) { return nfMoney.format(x) + ' ₽'; }
+  function qty(x) { return nfQty.format(x); }
+  function fmtInput(x) { return String(x).replace('.', ','); }
+  function fmtDate(t) { return new Date(t).toLocaleDateString('ru-RU'); }
+  function isToday(t) { return new Date(t).toDateString() === new Date().toDateString(); }
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  /* разбор числа: понимает "12,5" и "12.5"; пусто -> null (или 0, если emptyZero) */
+  function num(s, emptyZero) {
+    s = String(s == null ? '' : s).replace(/[\s\u00a0]/g, '').replace(',', '.');
+    if (s === '') return emptyZero ? 0 : null;
+    if (!/^(\d+(\.\d*)?|\.\d+)$/.test(s)) return null;
+    var v = Number(s);
+    return isFinite(v) ? v : null;
+  }
+  function todayStr() {
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+  function dateFromStr(s) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return Date.now();
+    var p = s.split('-').map(Number), n = new Date();
+    return new Date(p[0], p[1] - 1, p[2], n.getHours(), n.getMinutes(), n.getSeconds()).getTime();
+  }
+  function sortedMaterials() {
+    return db.materials.slice().sort(function (a, b) {
+      return a.name.localeCompare(b.name, 'ru', { sensitivity: 'base' });
+    });
+  }
+  function findMaterial(id) {
+    for (var i = 0; i < db.materials.length; i++) if (db.materials[i].id === id) return db.materials[i];
+    return null;
+  }
+  function banner() {
+    return storageOK ? '' : '<div class="warn">Браузер не разрешает сохранять данные — после закрытия страницы они пропадут.</div>';
+  }
+
+  /* ---------- клиенты и долги: вспомогательные ---------- */
+  function plural(n, one, few, many) {
+    var a = Math.abs(n) % 100, b = a % 10;
+    if (a > 10 && a < 20) return many;
+    if (b > 1 && b < 5) return few;
+    if (b === 1) return one;
+    return many;
+  }
+  function buys(n) { return n + ' ' + plural(n, 'покупка', 'покупки', 'покупок'); }
+  function findClient(id) {
+    for (var i = 0; i < db.clients.length; i++) if (db.clients[i].id === id) return db.clients[i];
+    return null;
+  }
+  function findSale(id) {
+    for (var i = 0; i < db.sales.length; i++) if (db.sales[i].id === id) return db.sales[i];
+    return null;
+  }
+  function sortedClients() {
+    return db.clients.slice().sort(function (a, b) { return a.name.localeCompare(b.name, 'ru', { sensitivity: 'base' }); });
+  }
+  function phoneMatch(phone, q) {
+    var pd = String(phone || '').replace(/\D/g, ''), raw = String(q).replace(/\D/g, '');
+    if (raw.length < 3 || !pd) return false;
+    if (pd.indexOf(raw) !== -1) return true;
+    return raw.length >= 4 && (raw[0] === '7' || raw[0] === '8') && pd.indexOf(raw.slice(1)) !== -1;
+  }
+  function clientMatches(c, q) {
+    q = q.trim().toLowerCase();
+    if (!q) return true;
+    var hay = (c.name + ' ' + (c.address || '') + ' ' + (c.phone || '')).toLowerCase();
+    return hay.indexOf(q) !== -1 || phoneMatch(c.phone, q);
+  }
+  /* Оплачено при создании продажи. У старых продаж поля paid нет — они считаются полностью оплаченными. */
+  function paidBase(s) {
+    return typeof s.paid === 'number' ? Math.max(0, Math.min(s.paid, s.total)) : s.total;
+  }
+  /* Единственный источник правды по долгам: всё считается из продаж и оплат, отдельно долг нигде не хранится.
+     Оплаты клиента (погашения) закрывают самые старые долги первыми. */
+  function computeDebts() {
+    var bySale = {}, byClient = {};
+    db.clients.forEach(function (c) {
+      byClient[c.id] = { count: 0, total: 0, debt: 0, last: 0, pool: 0 };
+    });
+    db.payments.forEach(function (p) {
+      var c = byClient[p.clientId];
+      if (c) c.pool = r2(c.pool + p.amount);
+    });
+    db.sales.slice().sort(function (a, b) { return a.date - b.date; }).forEach(function (s) {
+      var c = s.clientId ? byClient[s.clientId] : null;
+      if (!c) { bySale[s.id] = { paid: s.total, debt: 0 }; return; }
+      c.count++;
+      c.total = r2(c.total + s.total);
+      if (s.date > c.last) c.last = s.date;
+      var base = paidBase(s), unpaid = r2(s.total - base);
+      var rep = Math.min(unpaid, c.pool);
+      c.pool = r2(c.pool - rep);
+      var debt = r2(unpaid - rep);
+      c.debt = r2(c.debt + debt);
+      bySale[s.id] = { paid: r2(base + rep), debt: debt };
+    });
+    Object.keys(byClient).forEach(function (id) { byClient[id].surplus = byClient[id].pool; });
+    return { bySale: bySale, byClient: byClient };
+  }
+  var PAY_LABEL = { ok: 'Оплачено', part: 'Частично оплачено', debt: 'Долг' };
+  function payState(d) {
+    if (d.debt <= 0.004) return 'ok';
+    return d.paid <= 0.004 ? 'debt' : 'part';
+  }
+  function pill(st) {
+    return '<span class="pill ' + (st === 'ok' ? '' : st) + '">' + PAY_LABEL[st] + '</span>';
+  }
+
+  /* ---------- экраны ---------- */
+  function materialCards() {
+    if (!db.materials.length) return '<p class="empty">Материалов пока нет.<br>Нажмите «+ Добавить».</p>';
+    var q = search.trim().toLowerCase();
+    var list = sortedMaterials();
+    if (q) list = list.filter(function (m) { return m.name.toLowerCase().indexOf(q) !== -1; });
+    if (!list.length) return '<p class="empty">Ничего не найдено</p>';
+    return list.map(function (m) {
+      var pr = r2(m.salePrice - m.purchasePrice);
+      return '<button class="card" data-action="open-material" data-id="' + esc(m.id) + '">' +
+        '<div class="name">' + esc(m.name) + '</div>' +
+        '<div class="' + (m.stock <= 0 ? 'neg' : '') + '"><b>Остаток: ' + qty(m.stock) + ' ' + esc(m.unit) + '</b></div>' +
+        '<div class="muted">Закупка: ' + rub(m.purchasePrice) + '</div>' +
+        '<div class="muted">Продажа: ' + rub(m.salePrice) + '</div>' +
+        '<div class="' + (pr >= 0 ? 'pos' : 'neg') + '">Прибыль: ' + rub(pr) + '/' + esc(m.unit) + '</div>' +
+        '</button>';
+    }).join('');
+  }
+
+  function viewMaterials() {
+    return banner() + '<div class="hrow"><h1>Материалы</h1><div class="hbtns"><button class="ibtn" data-action="theme" aria-label="Тема: светлая или тёмная">' + (theme === 'dark' ? '☀️' : '🌙') + '</button><button class="ibtn" data-action="backup" aria-label="Резервная копия">💾</button></div></div>' +
+      '<input id="q" class="search" type="search" placeholder="Поиск материала" autocomplete="off" value="' + esc(search) + '">' +
+      '<button class="btn primary" data-action="add-material">+ Добавить</button>' +
+      '<div id="mat-list" style="margin-top:12px">' + materialCards() + '</div>';
+  }
+
+  /* Строки товаров продажи: одна позиция выглядит как раньше, несколько — списком */
+  function itemsHtml(s) {
+    var its = s.items;
+    if (its.length === 1) {
+      return '<div class="name">' + esc(its[0].materialName) + '</div>' +
+        '<div class="muted">' + qty(its[0].quantity) + ' ' + esc(its[0].unit) + ' × ' + rub(its[0].price) + '</div>';
+    }
+    return '<div class="small" style="margin:0 0 4px">' + its.length + ' ' + plural(its.length, 'позиция', 'позиции', 'позиций') + '</div>' +
+      its.map(function (it) {
+        return '<div style="margin:0 0 8px"><div class="name" style="font-size:16px;margin:0">' + esc(it.materialName) + '</div>' +
+          '<div class="muted">' + qty(it.quantity) + ' ' + esc(it.unit) + ' × ' + rub(it.price) + ' = ' + rub(it.total) + '</div></div>';
+      }).join('');
+  }
+
+  function saleCard(s, D) {
+    var c = s.clientId ? findClient(s.clientId) : null;
+    var d = D.bySale[s.id] || { paid: s.total, debt: 0 };
+    var st = payState(d);
+    return '<button class="card" data-action="open-sale" data-id="' + esc(s.id) + '">' +
+      itemsHtml(s) +
+      '<div class="total">' + rub(s.total) + '</div>' +
+      (c ? '<div class="muted">👤 ' + esc(c.name) + '</div><div style="margin-top:4px">' + pill(st) + '</div>' +
+        (st === 'part' ? '<div class="muted">Оплачено: ' + rub(d.paid) + ' · Долг: ' + rub(d.debt) + '</div>' : '') : '') +
+      '<div class="small">' + fmtDate(s.date) + '</div></button>';
+  }
+
+  function viewSales() {
+    var D = computeDebts();
+    var todays = db.sales.filter(function (s) { return isToday(s.date); });
+    var today = r2(todays.reduce(function (a, s) { return a + s.total; }, 0));
+    var items = db.sales.slice().sort(function (a, b) { return b.date - a.date; });
+    return banner() + '<h1>Продажи</h1>' +
+      '<div class="card stat"><div class="muted">Продажи сегодня</div><div class="big" id="today-sum">' + rub(today) + '</div>' +
+      '<div class="small">' + todays.length + ' ' + plural(todays.length, 'продажа', 'продажи', 'продаж') + '</div></div>' +
+      '<button class="btn primary" data-action="add-sale">+ Продажа</button>' +
+      '<div style="margin-top:12px">' +
+      (items.length ? items.map(function (s) { return saleCard(s, D); }).join('') : '<p class="empty">Продаж пока нет</p>') + '</div>';
+  }
+
+  function viewPurchases() {
+    var items = db.purchases.slice().sort(function (a, b) { return b.date - a.date; });
+    return banner() + '<h1>Приход</h1>' +
+      '<button class="btn primary" data-action="add-purchase">+ Приход</button>' +
+      '<div style="margin-top:12px">' +
+      (items.length ? items.map(function (p) {
+        return '<div class="card">' +
+          '<div class="name">' + esc(p.materialName) + '</div>' +
+          '<div><b>+' + qty(p.quantity) + ' ' + esc(p.unit) + '</b></div>' +
+          '<div class="muted">' + rub(p.price) + '/' + esc(p.unit) + '</div>' +
+          '<div class="total">' + rub(p.total) + '</div>' +
+          (p.supplier ? '<div class="muted">Поставщик: ' + esc(p.supplier) + '</div>' : '') +
+          '<div class="small">' + fmtDate(p.date) + '</div></div>';
+      }).join('') : '<p class="empty">Приходов пока нет</p>') + '</div>';
+  }
+
+  function clientCards() {
+    if (!db.clients.length) return '<p class="empty">Клиентов пока нет.<br>Нажмите «+ Клиент».</p>';
+    var D = computeDebts();
+    var list = sortedClients().filter(function (c) {
+      var i = D.byClient[c.id];
+      if (!clientMatches(c, clientSearch)) return false;
+      if (clientFilter === 'nodebt') return i.debt <= 0.004;
+      if (clientFilter === 'debt') return i.debt > 0.004;
+      if (clientFilter === 'regular') return i.count >= 3;
+      return true;
+    });
+    if (!list.length) return '<p class="empty">Ничего не найдено</p>';
+    return list.map(function (c) {
+      var i = D.byClient[c.id], has = i.debt > 0.004;
+      return '<button class="card" data-action="open-client" data-id="' + esc(c.id) + '">' +
+        '<div class="name">' + esc(c.name) + '</div>' +
+        (c.phone ? '<div class="muted">' + esc(c.phone) + '</div>' : '') +
+        (c.address ? '<div class="muted">' + esc(c.address) + '</div>' : '') +
+        '<div class="muted" style="margin-top:8px">' + buys(i.count) + '</div>' +
+        '<div><b>' + rub(i.total) + '</b></div>' +
+        '<div class="' + (has ? 'neg' : 'muted') + '">' + (has ? '<b>Долг: ' + rub(i.debt) + '</b>' : 'Долга нет') + '</div></button>';
+    }).join('');
+  }
+
+  function viewClients() {
+    var D = computeDebts();
+    var totalDebt = r2(db.clients.reduce(function (a, c) { return a + D.byClient[c.id].debt; }, 0));
+    var chips = [['all', 'Все'], ['nodebt', 'Без долгов'], ['debt', 'Есть долг'], ['regular', 'Постоянные']];
+    return banner() + '<h1>Клиенты</h1>' +
+      '<div class="grid2"><div class="cell"><span>Долги клиентов</span><b class="' + (totalDebt > 0.004 ? 'neg' : '') + '" id="all-debt">' + rub(totalDebt) + '</b></div>' +
+      '<div class="cell"><span>Клиентов</span><b>' + db.clients.length + '</b></div></div>' +
+      '<input id="cq" class="search" type="search" placeholder="Поиск: имя, телефон, адрес" autocomplete="off" value="' + esc(clientSearch) + '">' +
+      '<button class="btn primary" data-action="add-client">+ Клиент</button>' +
+      '<div class="chips">' + chips.map(function (c) {
+        return '<button class="chip' + (clientFilter === c[0] ? ' on' : '') + '" data-action="filter" data-f="' + c[0] + '">' + c[1] + '</button>';
+      }).join('') + '</div>' +
+      '<div id="cl-list">' + clientCards() + '</div>';
+  }
+
+  function histCard(s, D) {
+    var d = D.bySale[s.id] || { paid: s.total, debt: 0 };
+    var st = payState(d);
+    return '<div class="card">' +
+      '<div data-action="open-sale" data-id="' + esc(s.id) + '" style="cursor:pointer">' +
+      '<div class="small" style="margin:0 0 4px">' + fmtDate(s.date) + '</div>' +
+      itemsHtml(s) +
+      '<div class="total">' + rub(s.total) + '</div>' + pill(st) +
+      (st === 'part' ? '<div class="muted" style="margin-top:4px">Оплачено: ' + rub(d.paid) + ' · Долг: ' + rub(d.debt) + '</div>' : '') +
+      '</div>' +
+      '<button class="link-btn" data-action="repeat" data-id="' + esc(s.id) + '">🔄 Повторить</button></div>';
+  }
+
+  function viewClientPage(id) {
+    var c = findClient(id);
+    if (!c) { openClientId = null; return viewClients(); }
+    var D = computeDebts(), i = D.byClient[c.id], has = i.debt > 0.004;
+    var sales = db.sales.filter(function (s) { return s.clientId === c.id; }).sort(function (a, b) { return b.date - a.date; });
+    var pays = db.payments.filter(function (p) { return p.clientId === c.id; }).sort(function (a, b) { return b.date - a.date; });
+    var tel = String(c.phone || '').replace(/[^\d+]/g, '');
+    var h = banner() + '<button class="back" data-action="back-clients">‹ Клиенты</button>' +
+      '<h1 style="margin-bottom:6px">' + esc(c.name) + '</h1>' +
+      (c.phone ? '<div class="muted">' + esc(c.phone) + '</div>' : '') +
+      (c.address ? '<div class="muted">' + esc(c.address) + '</div>' : '') +
+      (c.comment ? '<div class="small" style="margin-top:6px">' + esc(c.comment) + '</div>' : '') +
+      '<div class="acts" style="margin-top:14px">' +
+      (tel ? '<a class="btn" href="tel:' + esc(tel) + '">📞 Позвонить</a>' : '<span class="btn off">📞 Позвонить</span>') +
+      (c.address ? '<a class="btn" target="_blank" rel="noopener" href="https://yandex.ru/maps/?text=' + encodeURIComponent(c.address) + '">📍 Адрес</a>' : '<span class="btn off">📍 Адрес</span>') +
+      '<button class="btn primary" data-action="client-sale">+ Новая продажа</button>' +
+      '<button class="btn" data-action="edit-client">✏️ Редактировать</button></div>' +
+      '<div class="card"><div class="muted">Текущий долг</div><div class="big ' + (has ? 'neg' : '') + '" id="c-debt">' + rub(i.debt) + '</div>' +
+      (has ? '<button class="btn primary" style="margin:12px 0 0" data-action="pay-debt">💳 Погасить долг</button>' : '') +
+      (i.surplus > 0.004 ? '<div class="small">Оплат больше, чем долгов: излишек ' + rub(i.surplus) + '</div>' : '') + '</div>' +
+      '<div class="grid2">' +
+      '<div class="cell"><span>Всего покупок</span><b>' + i.count + '</b></div>' +
+      '<div class="cell"><span>На сумму</span><b>' + rub(i.total) + '</b></div>' +
+      '<div class="cell"><span>Средний чек</span><b>' + (i.count ? rub(r2(i.total / i.count)) : '—') + '</b></div>' +
+      '<div class="cell"><span>Последняя покупка</span><b>' + (i.last ? fmtDate(i.last) : '—') + '</b></div></div>' +
+      '<div class="sec">История покупок</div>' +
+      (sales.length ? sales.map(function (s) { return histCard(s, D); }).join('') : '<p class="empty">Покупок пока нет</p>');
+    if (pays.length) {
+      h += '<div class="sec">Оплаты долга · нажмите, чтобы удалить</div>' + pays.map(function (p) {
+        return '<button class="card" data-action="del-payment" data-id="' + esc(p.id) + '"><div class="row"><span>' + fmtDate(p.date) + '</span><b class="pos">+' + rub(p.amount) + '</b></div></button>';
+      }).join('');
+    }
+    return h;
+  }
+
+  function render() {
+    var v = document.getElementById('view');
+    v.innerHTML = tab === 'materials' ? viewMaterials() : tab === 'sales' ? viewSales() :
+      tab === 'clients' ? (openClientId ? viewClientPage(openClientId) : viewClients()) : viewPurchases();
+    var btns = document.querySelectorAll('#tabs button');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].classList.toggle('on', btns[i].getAttribute('data-tab') === tab);
+    }
+  }
+
+  /* ---------- шторка и диалог ---------- */
+  function openSheet(title, closeLabel, bodyHtml, mount) {
+    var root = document.getElementById('sheet-root');
+    root.innerHTML =
+      '<div class="backdrop" data-action="close-sheet"></div>' +
+      '<section class="sheet" role="dialog" aria-modal="true">' +
+      '<header class="sheet-h"><button class="link" data-action="close-sheet">' + esc(closeLabel) + '</button>' +
+      '<h2>' + esc(title) + '</h2><span class="sp"></span></header>' +
+      '<div class="sheet-b">' + bodyHtml + '</div></section>';
+    document.body.classList.add('noscroll');
+    if (mount) mount(root);
+  }
+  function closeSheet() {
+    document.getElementById('sheet-root').innerHTML = '';
+    document.body.classList.remove('noscroll');
+  }
+  function confirmDialog(title, text, okLabel, onOk) {
+    var root = document.getElementById('dlg-root');
+    root.innerHTML = '<div class="dlg"><div class="dlg-box"><h3>' + esc(title) + '</h3><p>' + esc(text) + '</p>' +
+      '<button class="btn danger-fill" id="dlg-ok">' + esc(okLabel) + '</button>' +
+      '<button class="btn" id="dlg-cancel">Отмена</button></div></div>';
+    root.querySelector('#dlg-cancel').onclick = function () { root.innerHTML = ''; };
+    root.querySelector('#dlg-ok').onclick = function () { root.innerHTML = ''; onOk(); };
+  }
+  function materialOptions(selectedLabelFn) {
+    return '<option value="">Выберите материал</option>' + sortedMaterials().map(function (m) {
+      return '<option value="' + esc(m.id) + '">' + esc(m.name) + ' — ' + qty(m.stock) + ' ' + esc(m.unit) + '</option>';
+    }).join('');
+  }
+
+  /* ---------- материал: добавление / карточка ---------- */
+  function openMaterialSheet(id) {
+    var m = id ? findMaterial(id) : null;
+    if (id && !m) return;
+    var std = m && UNITS.indexOf(m.unit) !== -1 && m.unit !== 'другое';
+    var unitSel = m ? (std ? m.unit : 'другое') : 'шт';
+    var custom = m && !std ? m.unit : '';
+
+    var html =
+      '<label class="f"><span>Наименование</span><input id="f-name" type="text" autocomplete="off" autocapitalize="sentences" placeholder="Например: Цемент М500" value="' + esc(m ? m.name : '') + '"></label>' +
+      '<label class="f"><span>Единица измерения</span><select id="f-unit">' +
+      UNITS.map(function (u) { return '<option value="' + u + '"' + (u === unitSel ? ' selected' : '') + '>' + u + '</option>'; }).join('') +
+      '</select></label>' +
+      '<label class="f" id="f-custom-wrap" hidden><span>Своя единица</span><input id="f-custom" type="text" placeholder="Например: мешок" value="' + esc(custom) + '"></label>' +
+      '<label class="f"><span>Цена закупки, ₽</span><input id="f-pp" inputmode="decimal" placeholder="0" value="' + (m ? fmtInput(m.purchasePrice) : '') + '"></label>' +
+      '<label class="f"><span>Цена продажи, ₽</span><input id="f-sp" inputmode="decimal" placeholder="0" value="' + (m ? fmtInput(m.salePrice) : '') + '"></label>' +
+      '<label class="f"><span>' + (m ? 'Остаток' : 'Начальный остаток') + '</span><input id="f-st" inputmode="decimal" placeholder="0" value="' + (m ? fmtInput(m.stock) : '') + '"></label>' +
+      '<div class="err" id="f-err"></div>' +
+      '<button class="btn primary" id="f-save">Сохранить</button>' +
+      (m ? '<button class="btn danger" id="f-del">Удалить материал</button>' : '');
+
+    openSheet(m ? 'Материал' : 'Новый материал', m ? 'Закрыть' : 'Отмена', html, function (root) {
+      var $ = function (s) { return root.querySelector(s); };
+      var unitEl = $('#f-unit'), wrap = $('#f-custom-wrap');
+      var sync = function () { wrap.hidden = unitEl.value !== 'другое'; };
+      unitEl.addEventListener('change', sync);
+      sync();
+
+      $('#f-save').addEventListener('click', function () {
+        var name = $('#f-name').value.trim();
+        var pp = num($('#f-pp').value), sp = num($('#f-sp').value), st = num($('#f-st').value, true);
+        var err = $('#f-err');
+        if (!name) { err.textContent = 'Введите наименование'; return; }
+        if (pp === null) { err.textContent = 'Введите цену закупки (число)'; return; }
+        if (sp === null) { err.textContent = 'Введите цену продажи (число)'; return; }
+        if (st === null) { err.textContent = 'Остаток должен быть числом'; return; }
+        var unit = unitEl.value;
+        if (unit === 'другое') unit = $('#f-custom').value.trim() || 'ед.';
+        if (m) {
+          m.name = name; m.unit = unit; m.purchasePrice = pp; m.salePrice = sp; m.stock = r3(st);
+        } else {
+          db.materials.push({ id: uid(), name: name, unit: unit, purchasePrice: pp, salePrice: sp, stock: r3(st), createdAt: Date.now() });
+        }
+        save(); closeSheet(); render();
+      });
+
+      if (m) {
+        $('#f-del').addEventListener('click', function () {
+          confirmDialog('Удалить материал?', '«' + m.name + '». История продаж и прихода сохранится.', 'Удалить', function () {
+            db.materials = db.materials.filter(function (x) { return x.id !== m.id; });
+            save(); closeSheet(); render();
+          });
+        });
+      }
+    });
+  }
+
+  /* ---------- блок «Оплата» (общий для новой продажи и карточки продажи) ---------- */
+  function payHtml() {
+    return '<div id="pay-wrap" hidden><span class="cap">Оплата</span>' +
+      '<div class="seg" id="pay-seg"><button type="button" data-mode="paid" class="on">Оплачено</button>' +
+      '<button type="button" data-mode="partial">Частично</button><button type="button" data-mode="debt">В долг</button></div>' +
+      '<label class="f" id="pay-paidwrap" hidden><span>Оплачено, ₽</span><input id="pay-paid" inputmode="decimal" placeholder="0"></label>' +
+      '<div class="err" id="pay-err"></div></div>';
+  }
+  function bindPay(root, onChange) {
+    var $ = function (x) { return root.querySelector(x); };
+    var mode = 'paid', hasClient = false;
+    var wrap = $('#pay-wrap'), pw = $('#pay-paidwrap'), pe = $('#pay-paid');
+    var btns = root.querySelectorAll('#pay-seg button');
+    function paint() {
+      for (var i = 0; i < btns.length; i++) btns[i].classList.toggle('on', btns[i].getAttribute('data-mode') === mode);
+      wrap.hidden = !hasClient;
+      pw.hidden = !(hasClient && mode === 'partial');
+    }
+    for (var k = 0; k < btns.length; k++) {
+      btns[k].addEventListener('click', function () { mode = this.getAttribute('data-mode'); paint(); onChange(); });
+    }
+    pe.addEventListener('input', onChange);
+    paint();
+    return {
+      set: function (has, m, paid) { hasClient = has; if (m) mode = m; if (paid != null) pe.value = fmtInput(paid); paint(); },
+      setClient: function (has) { hasClient = has; paint(); },
+      /* оплата для суммы total: ok=false, если «частично» введено неверно */
+      calc: function (total) {
+        var eff = hasClient ? mode : 'paid', paid = total, ok = true, msg = '';
+        if (eff === 'debt') paid = 0;
+        else if (eff === 'partial') {
+          var v = num(pe.value);
+          if (v === null || v <= 0 || v >= total) {
+            ok = false; paid = 0;
+            if (pe.value !== '') msg = 'Оплачено должно быть больше 0 и меньше суммы продажи';
+          } else paid = r2(v);
+        }
+        $('#pay-err').textContent = msg;
+        return { ok: ok, paid: paid, debt: ok ? r2(total - paid) : total, mode: eff };
+      }
+    };
+  }
+  function clientOptions() {
+    return sortedClients().map(function (c) { return '<option value="' + esc(c.id) + '">' + esc(c.name) + '</option>'; }).join('');
+  }
+
+  /* ---------- продажа: несколько товаров в одной продаже ---------- */
+  /* opts (необязательно): { clientId, items: [{ materialId, quantity }] } — предзаполнение (карточка клиента, «Повторить») */
+  function openSaleSheet(opts) {
+    opts = opts || {};
+    var html = db.materials.length ?
+      '<label class="f"><span>Клиент</span><select id="s-client"><option value="">Без клиента</option>' + clientOptions() + '</select></label>' +
+      '<div id="s-rows"></div>' +
+      '<button class="btn" id="s-addrow" type="button">+ Добавить товар</button>' +
+      '<label class="f"><span>Дата</span><input id="s-date" type="date" value="' + todayStr() + '"></label>' +
+      payHtml() +
+      '<div class="sum"><div><span>Сумма</span><b id="s-total">0 ₽</b></div><div><span>Прибыль</span><b id="s-profit">0 ₽</b></div>' +
+      '<div id="s-debtcell" hidden><span>Долг</span><b id="s-debt" class="neg">0 ₽</b></div></div>' +
+      '<button class="btn primary" id="s-save" disabled>Провести продажу</button>'
+      : '<p class="empty">Сначала добавьте материал на вкладке «Материалы»</p>';
+
+    openSheet('Новая продажа', 'Отмена', html, function (root) {
+      if (!db.materials.length) return;
+      var $ = function (x) { return root.querySelector(x); };
+      var rowsEl = $('#s-rows'), cSel = $('#s-client'), matOpts = materialOptions();
+      var pay = bindPay(root, recalc);
+
+      function renumber() {
+        var lines = rowsEl.querySelectorAll('.pline');
+        for (var i = 0; i < lines.length; i++) {
+          lines[i].querySelector('.pn').textContent = lines.length > 1 ? 'Товар ' + (i + 1) : 'Товар';
+          lines[i].querySelector('.rm').hidden = lines.length === 1;
+        }
+      }
+      function applyMaterial(line) {
+        var m = findMaterial(line.querySelector('.r-mat').value);
+        if (m) { line.querySelector('.r-price').value = fmtInput(m.salePrice); line.querySelector('.r-unit').textContent = '(' + m.unit + ')'; }
+        else { line.querySelector('.r-unit').textContent = ''; }
+      }
+      function addRow(pre) {
+        var d = document.createElement('div');
+        d.className = 'pline';
+        d.innerHTML =
+          '<div class="row"><b class="pn"></b><button type="button" class="link-btn rm" style="padding:0">✕ Убрать</button></div>' +
+          '<label class="f"><span>Материал</span><select class="r-mat">' + matOpts + '</select></label>' +
+          '<div class="two"><label class="f"><span>Количество <b class="r-unit"></b></span><input class="r-qty" inputmode="decimal" placeholder="0"></label>' +
+          '<label class="f"><span>Цена, ₽</span><input class="r-price" inputmode="decimal" placeholder="0"></label></div>' +
+          '<div class="err r-warn"></div><div class="small r-sum">Сумма: 0 ₽</div>';
+        rowsEl.appendChild(d);
+        if (pre && findMaterial(pre.materialId)) { d.querySelector('.r-mat').value = pre.materialId; applyMaterial(d); }
+        if (pre && pre.quantity) d.querySelector('.r-qty').value = fmtInput(pre.quantity);
+        renumber();
+        return d;
+      }
+      /* строки формы -> данные; полностью пустая строка не считается */
+      function readRows() {
+        var out = [], lines = rowsEl.querySelectorAll('.pline');
+        for (var i = 0; i < lines.length; i++) {
+          var el = lines[i], mid = el.querySelector('.r-mat').value, qraw = el.querySelector('.r-qty').value;
+          var q = num(qraw), p = num(el.querySelector('.r-price').value);
+          out.push({ el: el, m: findMaterial(mid), q: q === null ? null : r3(q), p: p, blank: !mid && qraw.trim() === '' });
+        }
+        return out;
+      }
+
+      function recalc() {
+        var rows = readRows(), used = {}, total = 0, profit = 0, valid = false, bad = false;
+        rows.forEach(function (r) { if (!r.blank && r.m && r.q !== null) used[r.m.id] = r3((used[r.m.id] || 0) + r.q); });
+        rows.forEach(function (r) {
+          var over = !!(!r.blank && r.m && r.q !== null && used[r.m.id] > r.m.stock);
+          var line = (!r.blank && r.q !== null && r.p !== null) ? r2(r.q * r.p) : 0;
+          if (!r.blank) {
+            total += line;
+            if (r.m && r.q !== null && r.p !== null) profit += (r.p - r.m.purchasePrice) * r.q;
+            if (r.m && r.q !== null && r.q > 0 && r.p !== null && !over) valid = true; else bad = true;
+          }
+          r.el.querySelector('.r-sum').textContent = 'Сумма: ' + rub(line);
+          r.el.querySelector('.r-warn').textContent = over
+            ? 'Недостаточно на складе. Остаток: ' + qty(r.m.stock) + ' ' + r.m.unit + (used[r.m.id] > r.q ? ' (в этой продаже выбрано всего ' + qty(used[r.m.id]) + ')' : '')
+            : '';
+        });
+        total = r2(total); profit = r2(profit);
+        var pr = pay.calc(total);
+        $('#s-total').textContent = rub(total);
+        var pf = $('#s-profit');
+        pf.textContent = rub(profit);
+        pf.className = profit >= 0 ? 'pos' : 'neg';
+        $('#s-debtcell').hidden = pr.mode === 'paid';
+        $('#s-debt').textContent = rub(pr.debt);
+        $('#s-save').disabled = !(valid && !bad && pr.ok);
+      }
+
+      rowsEl.addEventListener('change', function (e) {
+        if (e.target.classList && e.target.classList.contains('r-mat')) { applyMaterial(e.target.closest('.pline')); recalc(); }
+      });
+      rowsEl.addEventListener('input', function () { recalc(); });
+      rowsEl.addEventListener('click', function (e) {
+        var b = e.target.closest ? e.target.closest('.rm') : null;
+        if (b && rowsEl.querySelectorAll('.pline').length > 1) { b.closest('.pline').remove(); renumber(); recalc(); }
+      });
+      $('#s-addrow').addEventListener('click', function () {
+        var d = addRow(null);
+        recalc();
+        if (d.scrollIntoView) d.scrollIntoView({ block: 'nearest' });
+      });
+      cSel.addEventListener('change', function () { pay.setClient(!!cSel.value); recalc(); });
+
+      $('#s-save').addEventListener('click', function () {
+        var rows = readRows().filter(function (r) { return !r.blank; });
+        if (!rows.length) return;
+        var used = {};
+        for (var i = 0; i < rows.length; i++) {
+          var r = rows[i];
+          if (!r.m || r.q === null || r.q <= 0 || r.p === null) return;
+          used[r.m.id] = r3((used[r.m.id] || 0) + r.q);
+          if (used[r.m.id] > r.m.stock) return;   /* суммарно по одному материалу не больше остатка */
+        }
+        var items = rows.map(function (r) {
+          return { materialId: r.m.id, materialName: r.m.name, unit: r.m.unit, quantity: r.q, price: r.p,
+            costPrice: r.m.purchasePrice, total: r2(r.q * r.p) };
+        });
+        var total = r2(items.reduce(function (a, it) { return a + it.total; }, 0));
+        var pr = pay.calc(total);
+        if (!pr.ok) return;
+        var hasClient = !!cSel.value;
+        db.sales.push({
+          id: uid(), items: items, total: total,
+          date: dateFromStr($('#s-date').value),
+          clientId: hasClient ? cSel.value : null,
+          paid: hasClient ? pr.paid : total
+        });
+        rows.forEach(function (r) { r.m.stock = r3(r.m.stock - r.q); });   /* остаток каждого материала уменьшается по существующей логике */
+        save(); closeSheet(); render();
+      });
+
+      /* предзаполнение */
+      if (opts.clientId && findClient(opts.clientId)) { cSel.value = opts.clientId; pay.setClient(true); }
+      var pre = opts.items && opts.items.length ? opts.items : [null];
+      pre.forEach(function (it) { addRow(it); });
+      recalc();
+    });
+  }
+
+  /* ---------- карточка продажи: клиент / оплата / удаление ---------- */
+  function openSaleDetail(id) {
+    var s = findSale(id);
+    if (!s) return;
+    var html =
+      '<div class="card">' + itemsHtml(s) + '<div class="total">' + rub(s.total) + '</div><div class="small">' + fmtDate(s.date) + '</div></div>' +
+      '<label class="f"><span>Клиент</span><select id="d-client"><option value="">Без клиента</option>' + clientOptions() + '</select></label>' +
+      payHtml() +
+      '<button class="btn primary" id="d-save">Сохранить</button>' +
+      '<button class="btn danger" id="d-del">Удалить продажу</button>';
+    openSheet('Продажа', 'Закрыть', html, function (root) {
+      var $ = function (x) { return root.querySelector(x); };
+      var cSel = $('#d-client');
+      var pay = bindPay(root, refresh);
+      var hasC = !!(s.clientId && findClient(s.clientId));
+      var base = paidBase(s);
+      var m0 = (s.total - base < 0.005) ? 'paid' : (base < 0.005 ? 'debt' : 'partial');
+      if (hasC) cSel.value = s.clientId;
+      pay.set(hasC, m0, m0 === 'partial' ? base : null);
+      function refresh() { $('#d-save').disabled = !pay.calc(s.total).ok; }
+      cSel.addEventListener('change', function () { pay.setClient(!!cSel.value); refresh(); });
+      refresh();
+
+      $('#d-save').addEventListener('click', function () {
+        var r = pay.calc(s.total);
+        if (!r.ok) return;
+        var has = !!cSel.value;
+        s.clientId = has ? cSel.value : null;
+        s.paid = has ? r.paid : s.total;
+        save(); closeSheet(); render();
+      });
+      $('#d-del').addEventListener('click', function () {
+        var missing = s.items.filter(function (it) { return !findMaterial(it.materialId); }).length;
+        confirmDialog('Удалить продажу?',
+          (missing === 0 ? 'Количество вернётся в остаток материалов.' :
+            missing === s.items.length ? 'Материалы уже удалены — остаток вернуть некуда.' : 'Остаток вернётся, кроме удалённых материалов.') +
+          (hasC ? ' Долг и история клиента пересчитаются.' : ''),
+          'Удалить', function () {
+            s.items.forEach(function (it) {
+              var mm = findMaterial(it.materialId);
+              if (mm) mm.stock = r3(mm.stock + it.quantity);
+            });
+            db.sales = db.sales.filter(function (x) { return x.id !== s.id; });
+            save(); closeSheet(); render();
+          });
+      });
+    });
+  }
+
+  /* ---------- клиент: добавление / редактирование ---------- */
+  function openClientSheet(id) {
+    var c = id ? findClient(id) : null;
+    if (id && !c) return;
+    var debt = c ? computeDebts().byClient[c.id].debt : 0;
+    var html =
+      '<label class="f"><span>Имя / название</span><input id="c-name" type="text" autocomplete="off" autocapitalize="words" placeholder="Иван Петров или ООО «Ромашка»" value="' + esc(c ? c.name : '') + '"></label>' +
+      '<label class="f"><span>Телефон</span><input id="c-phone" type="tel" inputmode="tel" placeholder="+7 999 123-45-67" value="' + esc(c ? c.phone || '' : '') + '"></label>' +
+      '<label class="f"><span>Адрес</span><input id="c-addr" type="text" placeholder="г. Чита, ул. Ленина, 15" value="' + esc(c ? c.address || '' : '') + '"></label>' +
+      '<label class="f"><span>Комментарий</span><textarea id="c-note" rows="3">' + esc(c ? c.comment || '' : '') + '</textarea></label>' +
+      '<div class="err" id="c-err"></div>' +
+      '<button class="btn primary" id="c-save">Сохранить</button>' +
+      (c ? (debt > 0.004 ? '<p class="hint">Удалить клиента можно после погашения долга.</p>' : '<button class="btn danger" id="c-del">Удалить клиента</button>') : '');
+    openSheet(c ? 'Клиент' : 'Новый клиент', c ? 'Закрыть' : 'Отмена', html, function (root) {
+      var $ = function (x) { return root.querySelector(x); };
+      $('#c-save').addEventListener('click', function () {
+        var name = $('#c-name').value.trim();
+        if (!name) { $('#c-err').textContent = 'Введите имя или название'; return; }
+        var data = { name: name, phone: $('#c-phone').value.trim(), address: $('#c-addr').value.trim(), comment: $('#c-note').value.trim() };
+        if (c) { c.name = data.name; c.phone = data.phone; c.address = data.address; c.comment = data.comment; }
+        else db.clients.push({ id: uid(), name: data.name, phone: data.phone, address: data.address, comment: data.comment, createdAt: Date.now() });
+        save(); closeSheet(); render();
+      });
+      var del = $('#c-del');
+      if (del) del.addEventListener('click', function () {
+        confirmDialog('Удалить клиента?', '«' + c.name + '». Его продажи останутся в разделе «Продажи» без клиента.', 'Удалить', function () {
+          db.sales.forEach(function (s) { if (s.clientId === c.id) { s.clientId = null; s.paid = s.total; } });
+          db.payments = db.payments.filter(function (p) { return p.clientId !== c.id; });
+          db.clients = db.clients.filter(function (x) { return x.id !== c.id; });
+          openClientId = null;
+          save(); closeSheet(); render();
+        });
+      });
+    });
+  }
+
+  /* ---------- погашение долга ---------- */
+  function openPaySheet(clientId) {
+    var c = findClient(clientId);
+    if (!c) return;
+    var debt = computeDebts().byClient[c.id].debt;
+    if (debt <= 0.004) return;
+    var html =
+      '<div class="card"><div class="muted">Долг</div><div class="big neg">' + rub(debt) + '</div></div>' +
+      '<label class="f"><span>Сумма оплаты, ₽</span><input id="y-amt" inputmode="decimal" placeholder="0"></label>' +
+      '<button class="btn" id="y-full" type="button">Погасить полностью</button>' +
+      '<div class="err" id="y-err"></div>' +
+      '<div class="sum"><div><span>Долг после оплаты</span><b id="y-left">' + rub(debt) + '</b></div></div>' +
+      '<button class="btn primary" id="y-save" disabled>Сохранить оплату</button>';
+    openSheet('Погашение долга', 'Отмена', html, function (root) {
+      var $ = function (x) { return root.querySelector(x); };
+      var amt = $('#y-amt');
+      function recalc() {
+        var v = num(amt.value), bad = v !== null && v > debt + 0.004;
+        $('#y-err').textContent = bad ? 'Больше долга (' + rub(debt) + ')' : '';
+        $('#y-left').textContent = rub(v !== null && !bad ? r2(debt - v) : debt);
+        $('#y-save').disabled = !(v !== null && v > 0 && !bad);
+      }
+      amt.addEventListener('input', recalc);
+      $('#y-full').addEventListener('click', function () { amt.value = fmtInput(debt); recalc(); });
+      $('#y-save').addEventListener('click', function () {
+        var v = num(amt.value);
+        if (v === null || v <= 0 || v > debt + 0.004) return;
+        db.payments.push({ id: uid(), clientId: c.id, amount: r2(Math.min(v, debt)), date: Date.now() });
+        save(); closeSheet(); render();
+      });
+    });
+  }
+
+  function infoDialog(title, text) {
+    var root = document.getElementById('dlg-root');
+    root.innerHTML = '<div class="dlg"><div class="dlg-box"><h3>' + esc(title) + '</h3><p>' + esc(text) + '</p>' +
+      '<button class="btn primary" id="dlg-ok">Понятно</button></div></div>';
+    root.querySelector('#dlg-ok').onclick = function () { root.innerHTML = ''; };
+  }
+
+  /* ---------- приход ---------- */
+  function openPurchaseSheet() {
+    var html = db.materials.length ?
+      '<label class="f"><span>Материал</span><select id="p-mat">' + materialOptions() + '</select></label>' +
+      '<label class="f"><span>Количество <b id="p-unit"></b></span><input id="p-qty" inputmode="decimal" placeholder="0"></label>' +
+      '<label class="f"><span>Цена закупки, ₽</span><input id="p-price" inputmode="decimal" placeholder="0"></label>' +
+      '<label class="f"><span>Поставщик</span><input id="p-sup" type="text" placeholder="Необязательно" autocomplete="off"></label>' +
+      '<label class="f"><span>Дата</span><input id="p-date" type="date" value="' + todayStr() + '"></label>' +
+      '<div class="sum"><div><span>Сумма прихода</span><b id="p-total">0 ₽</b></div></div>' +
+      '<button class="btn primary" id="p-save" disabled>Сохранить приход</button>'
+      : '<p class="empty">Сначала добавьте материал на вкладке «Материалы»</p>';
+
+    openSheet('Новый приход', 'Отмена', html, function (root) {
+      if (!db.materials.length) return;
+      var $ = function (s) { return root.querySelector(s); };
+      var sel = $('#p-mat'), qEl = $('#p-qty'), pEl = $('#p-price');
+
+      function recalc() {
+        var m = findMaterial(sel.value);
+        var q = num(qEl.value), p = num(pEl.value);
+        var qq = q === null ? null : r3(q);
+        $('#p-total').textContent = rub((qq !== null && p !== null) ? r2(qq * p) : 0);
+        $('#p-save').disabled = !(m && qq !== null && qq > 0 && p !== null);
+      }
+      sel.addEventListener('change', function () {
+        var m = findMaterial(sel.value);
+        if (m) { pEl.value = fmtInput(m.purchasePrice); $('#p-unit').textContent = '(' + m.unit + ')'; }
+        else { $('#p-unit').textContent = ''; }
+        recalc();
+      });
+      qEl.addEventListener('input', recalc);
+      pEl.addEventListener('input', recalc);
+
+      $('#p-save').addEventListener('click', function () {
+        var m = findMaterial(sel.value);
+        var q = num(qEl.value), p = num(pEl.value);
+        if (!m || q === null || p === null) return;
+        q = r3(q);
+        if (q <= 0) return;
+        db.purchases.push({
+          id: uid(), materialId: m.id, materialName: m.name, unit: m.unit,
+          quantity: q, price: p, total: r2(q * p), supplier: $('#p-sup').value.trim(),
+          date: dateFromStr($('#p-date').value)
+        });
+        m.stock = r3(m.stock + q);
+        save(); closeSheet(); render();
+      });
+    });
+  }
+
+  /* ---------- резервная копия: выгрузка и восстановление ---------- */
+  var BACKUP_KEYS = ['materials', 'sales', 'purchases', 'clients', 'payments'];
+  function backupText() {
+    return JSON.stringify({ app: 'stroyuchet', version: 1, exportedAt: new Date().toISOString(), data: db });
+  }
+  function countsLine(d) {
+    return 'Материалы: ' + d.materials.length + ' · Продажи: ' + d.sales.length + ' · Приходы: ' + d.purchases.length +
+      ' · Клиенты: ' + d.clients.length + ' · Оплаты: ' + d.payments.length;
+  }
+  function isNum(x) { return typeof x === 'number' && isFinite(x); }
+  function isStr(x) { return typeof x === 'string'; }
+  /* Разбор и проверка копии. Принимает файл копии и «голый» объект данных. */
+  function parseBackup(text) {
+    var obj;
+    try { obj = JSON.parse(text); } catch (e) { return { error: 'Это не файл копии: текст не читается.' }; }
+    var d = obj && obj.data && typeof obj.data === 'object' ? obj.data : obj;
+    if (!d || typeof d !== 'object' || !Array.isArray(d.materials) || !Array.isArray(d.sales) || !Array.isArray(d.purchases)) {
+      return { error: 'Это не копия Стройучета: нет списков материалов, продаж и приходов.' };
+    }
+    var rules = {
+      materials: function (x) { return isStr(x.name) && isStr(x.unit) && isNum(x.purchasePrice) && isNum(x.salePrice) && isNum(x.stock); },
+      sales: function (x) {
+        if (!isNum(x.date) || !isNum(x.total)) return false;
+        if (Array.isArray(x.items)) {
+          return x.items.length > 0 && x.items.every(function (it) {
+            return it && isStr(it.materialName) && isStr(it.unit) && isNum(it.quantity) && isNum(it.price) && isNum(it.total);
+          });
+        }
+        return isStr(x.materialName) && isStr(x.unit) && isNum(x.quantity) && isNum(x.price);   /* копия, сделанная до «нескольких товаров» */
+      },
+      purchases: function (x) { return isStr(x.materialName) && isStr(x.unit) && isNum(x.quantity) && isNum(x.price) && isNum(x.total) && isNum(x.date); },
+      clients: function (x) { return isStr(x.name); },
+      payments: function (x) { return isStr(x.clientId) && isNum(x.amount) && isNum(x.date); }
+    };
+    var LABEL = { materials: 'Материалы', sales: 'Продажи', purchases: 'Приходы', clients: 'Клиенты', payments: 'Оплаты' };
+    var out = {};
+    for (var k = 0; k < BACKUP_KEYS.length; k++) {
+      var key = BACKUP_KEYS[k], arr = d[key] === undefined ? [] : d[key];
+      if (!Array.isArray(arr)) return { error: 'Копия повреждена: раздел «' + LABEL[key] + '» не читается.' };
+      for (var i = 0; i < arr.length; i++) {
+        var it = arr[i];
+        if (!it || typeof it !== 'object' || !isStr(it.id) || !rules[key](it)) return { error: 'Копия повреждена: некорректная запись в разделе «' + LABEL[key] + '».' };
+      }
+      out[key] = arr;
+    }
+    return { data: out };
+  }
+  function getDownloads() {
+    try {
+      if (window.claude && typeof window.claude.use === 'function') {
+        return Promise.resolve(window.claude.use('downloads')).then(function (x) { return x || null; }, function () { return null; });
+      }
+    } catch (e) { }
+    return Promise.resolve(null);
+  }
+
+  function openBackupSheet() {
+    var html =
+      '<div class="card"><div class="muted">Сейчас в приложении</div><div>' + esc(countsLine(db)) + '</div></div>' +
+      '<p class="hint" style="margin-top:0">Данные хранятся только в этом браузере. Сохраняйте копию время от времени — она защитит от потери данных.</p>' +
+      '<button class="btn primary" id="b-save">💾 Сохранить копию в файл</button>' +
+      '<button class="btn" id="b-copy">Скопировать копию текстом</button>' +
+      '<textarea id="b-out" class="ta" rows="5" readonly hidden></textarea>' +
+      '<div class="sec">Восстановление</div>' +
+      '<p class="hint" style="margin-top:0">Восстановление заменяет все текущие данные данными из копии.</p>' +
+      '<button class="btn" id="b-load">Загрузить из файла</button>' +
+      '<input id="b-file" type="file" accept=".json,application/json,text/plain" hidden>' +
+      '<button class="btn" id="b-paste">Вставить из текста</button>' +
+      '<div id="b-pastewrap" hidden><textarea id="b-in" class="ta" rows="5" placeholder="Вставьте сюда текст копии"></textarea>' +
+      '<button class="btn danger" id="b-restore" disabled>Восстановить из текста</button></div>' +
+      '<div id="b-msg"></div>';
+    openSheet('Резервная копия', 'Закрыть', html, function (root) {
+      var $ = function (x) { return root.querySelector(x); };
+      function msg(text, bad) { var m = $('#b-msg'); m.className = bad ? 'err' : 'okm'; m.textContent = text; }
+
+      function askImport(text) {
+        var r = parseBackup(text);
+        if (r.error) { msg(r.error, true); return; }
+        confirmDialog('Заменить данные?', 'В копии — ' + countsLine(r.data) + '. Все текущие данные будут заменены.', 'Заменить', function () {
+          db = r.data;
+          normalizeSales();
+          save(); openClientId = null; closeSheet(); render();
+          infoDialog('Готово', 'Данные восстановлены из копии.');
+        });
+      }
+
+      $('#b-save').addEventListener('click', function () {
+        var text = backupText(), name = 'stroyuchet-' + todayStr() + '.json';
+        getDownloads().then(function (dl) {
+          if (dl) {
+            return dl.save({ filename: name, data: text }).then(function () {
+              msg('Копия сохранена: ' + name);
+            }, function (e) {
+              var code = e && e.code;
+              if (code === 'declined') msg('Сохранение отменено.', true);
+              else if (code === 'rate_limited') msg('Подождите немного и повторите.', true);
+              else msg('Не удалось сохранить файл. Воспользуйтесь «Скопировать копию текстом».', true);
+            });
+          }
+          try {   /* обычный сайт без платформы: скачивание через ссылку */
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
+            a.download = name;
+            document.body.appendChild(a); a.click(); a.remove();
+            msg('Файл готов: ' + name);
+          } catch (e) { msg('Не удалось создать файл. Воспользуйтесь «Скопировать копию текстом».', true); }
+        });
+      });
+
+      $('#b-copy').addEventListener('click', function () {
+        var text = backupText();
+        function manual() {
+          var ta = $('#b-out'); ta.hidden = false; ta.value = text; ta.focus(); ta.select();
+          msg('Автоматически скопировать не удалось. Текст выделен выше — скопируйте его вручную.', true);
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(function () {
+            msg('Копия скопирована. Вставьте ее в заметки или отправьте себе в мессенджер.');
+          }, manual);
+        } else manual();
+      });
+
+      $('#b-load').addEventListener('click', function () { $('#b-file').click(); });
+      $('#b-file').addEventListener('change', function () {
+        var f = this.files && this.files[0], inp = this;
+        if (!f) return;
+        var rd = new FileReader();
+        rd.onload = function () { inp.value = ''; askImport(String(rd.result)); };
+        rd.onerror = function () { msg('Не удалось прочитать файл.', true); };
+        rd.readAsText(f);
+      });
+
+      $('#b-paste').addEventListener('click', function () { $('#b-pastewrap').hidden = false; $('#b-in').focus(); });
+      $('#b-in').addEventListener('input', function () { $('#b-restore').disabled = !$('#b-in').value.trim(); });
+      $('#b-restore').addEventListener('click', function () { askImport($('#b-in').value); });
+    });
+  }
+
+  /* ---------- события ---------- */
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest ? e.target.closest('[data-action],[data-tab]') : null;
+    if (!t) return;
+    var tabName = t.getAttribute('data-tab');
+    if (tabName) { tab = tabName; openClientId = null; render(); window.scrollTo(0, 0); return; }
+    switch (t.getAttribute('data-action')) {
+      case 'add-material': openMaterialSheet(null); break;
+      case 'open-material': openMaterialSheet(t.getAttribute('data-id')); break;
+      case 'add-sale': openSaleSheet(); break;
+      case 'add-purchase': openPurchaseSheet(); break;
+      case 'close-sheet': closeSheet(); break;
+      case 'backup': openBackupSheet(); break;
+      case 'theme': toggleTheme(); break;
+      case 'open-sale': openSaleDetail(t.getAttribute('data-id')); break;
+      case 'add-client': openClientSheet(null); break;
+      case 'open-client': openClientId = t.getAttribute('data-id'); render(); window.scrollTo(0, 0); break;
+      case 'back-clients': openClientId = null; render(); window.scrollTo(0, 0); break;
+      case 'edit-client': openClientSheet(openClientId); break;
+      case 'client-sale': openSaleSheet({ clientId: openClientId }); break;
+      case 'pay-debt': openPaySheet(openClientId); break;
+      case 'filter': clientFilter = t.getAttribute('data-f'); render(); break;
+      case 'repeat':
+        var src = findSale(t.getAttribute('data-id'));
+        if (!src) break;
+        var avail = [], gone = [];
+        src.items.forEach(function (it) {
+          if (findMaterial(it.materialId)) avail.push({ materialId: it.materialId, quantity: it.quantity });
+          else gone.push(it.materialName);
+        });
+        if (!avail.length) { infoDialog('Материал удалён', 'Этих материалов больше нет в списке — повторить продажу нельзя.'); break; }
+        openSaleSheet({ clientId: src.clientId, items: avail });
+        if (gone.length) infoDialog('Часть товаров не добавлена', 'Этих материалов больше нет в списке: ' + gone.join(', ') + '.');
+        break;
+      case 'del-payment':
+        var pay = null, pid = t.getAttribute('data-id');
+        db.payments.forEach(function (p) { if (p.id === pid) pay = p; });
+        if (!pay) break;
+        confirmDialog('Удалить оплату?', rub(pay.amount) + ' от ' + fmtDate(pay.date) + '. Долг клиента пересчитается.', 'Удалить', function () {
+          db.payments = db.payments.filter(function (p) { return p.id !== pid; });
+          save(); render();
+        });
+        break;
+    }
+  });
+  document.addEventListener('input', function (e) {
+    if (e.target && e.target.id === 'q') {
+      search = e.target.value;
+      document.getElementById('mat-list').innerHTML = materialCards();
+    }
+    if (e.target && e.target.id === 'cq') {
+      clientSearch = e.target.value;
+      document.getElementById('cl-list').innerHTML = clientCards();
+    }
+  });
+
+  load();
+  normalizeSales();
+  loadTheme();
+  render();
+})();
+</script>
+</body>
+</html>
